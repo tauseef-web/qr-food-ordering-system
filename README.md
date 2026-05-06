@@ -1,42 +1,50 @@
-# QR-Based Food Ordering System
+# EaseUrOrder
 
-## 📌 Overview
+EaseUrOrder is a subscription-based, multi-tenant QR and takeaway ordering platform for cafes and restaurants. It is being built with ASP.NET Core, Entity Framework Core, and SQL Server.
 
-This project is a web-based QR food ordering system developed using ASP.NET Core and SQL Server. It allows customers to scan a QR code and place orders digitally, minimizing waiting time and improving user convenience. The system is being enhanced to support admin-side order monitoring and reporting features for better business insights.
+## Product vision
 
----
+- Customers scan a table QR code and order from the correct outlet menu.
+- Multiple customers at the same table can place separate orders from the same QR code.
+- Each QR code points to `https://{tenantSubdomain}.easeurorder.com/qr/{qrToken}`.
+- Every dine-in order references the same table and QR code when it comes from the same table QR; duplicate table rows should not be created.
+- Customers can also search restaurants from the public landing page and place pay-first takeaway orders.
+- Razorpay will be used for online payments through a provider abstraction.
+- Tenants pay a cloud subscription only. There is no sales commission and no QR-code limit.
+- Tenant admins can add cost price and selling price so dashboards can calculate estimated gross profit.
 
-## 🛠 Tech Stack
+## Architecture summary
 
-- ASP.NET Core
-- Entity Framework Core
-- SQL Server
-- RESTful APIs
-- C#
+The app uses two data boundaries:
 
----
+1. **Platform database** for EaseUrOrder SaaS data: tenants, subscription status, tenant database names, subdomains, and platform administration.
+2. **Tenant database** for each restaurant business: outlets, tables, QR codes, menus, orders, payments, and reports.
 
-## ⚙️ Features Implemented
+See the full architecture blueprint in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-- Project structure with layered architecture
-- Database models and relationships
-- CRUD operations using Entity Framework Core
-- REST API endpoints for menu and order handling
-- DbContext configuration with SQL Server integration
+## Roles
 
----
+- **SuperAdmin:** manages tenant registration, deregistration, subscriptions, and provisioning.
+- **TenantAdmin:** manages the restaurant business and can add multiple outlets.
+- **OutletAdmin:** manages one outlet, including menu, QR codes, tables, and reports.
+- **Receptionist:** manages incoming orders and item availability.
+- **Customer:** scans QR codes or places takeaway orders from the landing page.
 
-## 🚧 Currently Enhancing
+## Current technical foundation
 
-- Order processing workflow
-- Role-based authentication and authorization
-- UI improvements
+- ASP.NET Core Razor Pages project.
+- Entity Framework Core with SQL Server.
+- Platform models for tenants and subscriptions.
+- Tenant models for outlets, tables, QR codes, menu categories, menu items, orders, order items, and payments.
 
----
+## Recommended build sequence
 
-## 📚 Learning Outcomes
-
-- Applied Object-Oriented Programming concepts
-- Implemented backend architecture design
-- Integrated database with ORM (Entity Framework Core)
-- Improved debugging and error handling skills
+1. Tenant resolution from `tenantSubdomain.easeurorder.com`.
+2. Platform tenant provisioning and tenant database migration.
+3. Authentication and authorization policies for all roles.
+4. Outlet, table, and QR-code management.
+5. Customer QR menu and dine-in ordering flow.
+6. Receptionist order dashboard.
+7. Landing-page restaurant search and pay-first takeaway flow.
+8. Razorpay payment provider and webhook handling.
+9. Sales, best-selling item, and gross-profit dashboards.
